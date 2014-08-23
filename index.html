@@ -39,6 +39,8 @@
       };
 
       $(function(){
+        window.setTimeout(function(){ location.reload(); }, 60000 * 5);
+
         var entries = window.rvdat;
 
         var len = entries.length - 2;
@@ -66,13 +68,10 @@
           };
         });
 
-        // console.log(len, owned, owner, reviewed);
-
         var $stat = $('#stats');
         $stat.find('.perc').text(Math.round(reviewed/len * 1000)/10);
         $stat.find('.reviewed').text(reviewed);
         $stat.find('.all').text(len);
-
 
         var source   = $("#reviewer-template").html();
         var reviewerhbs = Handlebars.compile(source);
@@ -90,7 +89,6 @@
         });
 
         $stat.find('#reviewer').append(reviewerhbs(ownerDat));
-
       });
     </script>
     <script type="text/javascript"  src="//spreadsheets.google.com/feeds/list/1xW2g3aE_3Bd9wZ5wiwTy3Kor861W6B9Kj8W7ZR9G1O4/2/public/values?alt=json-in-script&callback=getDat"></script>
