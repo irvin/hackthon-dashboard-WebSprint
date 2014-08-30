@@ -6,6 +6,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.min.js"></script>
     <style>
       .title { font-size: 2em; margin-right: 0.5em; }
+      img { float: right; margin: 1em; }
       #issues thead { text-align: left; }
       #issues td { text-align: left; padding: 0 0.5em; }
       #issues tr { line-height: 1.5em; }
@@ -19,6 +20,8 @@
         <span class="title">完成率 <span class="perc">0</span> %</span>
         <span class="reviewed">0</span> / <span class="all"></span>
       </p>
+
+      <img src="images.gif" alt="">
 
       <table id="issues">
         <thead>
@@ -37,13 +40,11 @@
           <tr>
             <td>{{@index}}.</td>
             <td><a href="{{url}}" target="_blank">{{title}}</url></td>
-          <!--<td>{{done}}/{{owned}}</td><td>{{perc}}%</td>-->
           {{/each}}
         </script>
       </ul>
     </div>
 
-    <img src="images.gif" alt="">
 
     <script>
       function init(data){
