@@ -6,7 +6,9 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.min.js"></script>
     <style>
       .title { font-size: 2em; margin-right: 0.5em; }
-      #reviewer td { text-align: center; }
+      #issues thead { text-align: left; }
+      #issues td { text-align: left; padding: 0 0.5em; }
+      #issues tr { line-height: 1.5em; }
     </style>
   </head>
 
@@ -18,14 +20,24 @@
         <span class="reviewed">0</span> / <span class="all"></span>
       </p>
 
-      <table id="reviewer">
-        <tr><td>Reviewer</td><td>完成數/認領數</td><td>完成率</td>
+      <table id="issues">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Open Issues</th>
+          </th>
+        </thead>
+        <tbody>
+        </tbody>
       </table>
 
-      <ul id="reviewer">
-        <script id="reviewer-template" type="text/x-handlebars-template">
-          {{#each owner}}
-          <tr><td>{{name}}</td><td>{{done}}/{{owned}}</td><td>{{perc}}%</td>
+      <ul id="issues">
+        <script id="issues-template" type="text/x-handlebars-template">
+          {{#each data}}
+          <tr>
+            <td>{{@index}}.</td>
+            <td><a href="{{url}}" target="_blank">{{title}}</url></td>
+          <!--<td>{{done}}/{{owned}}</td><td>{{perc}}%</td>-->
           {{/each}}
         </script>
       </ul>
@@ -34,8 +46,8 @@
     <img src="images.gif" alt="">
 
     <script>
-      function init(entries){
-        var milestone = entries[0].milestone;
+      function init(data){
+        var milestone = data[0].milestone;
 
         var len = milestone.closed_issues + milestone.open_issues;
         var owned = 0;
@@ -46,118 +58,19 @@
         $stat.find('.reviewed').text(milestone.closed_issues);
         $stat.find('.all').text(len);
 
+        var source = $("#issues-template").html();
+        var issuehbs = Handlebars.compile(source);
 
-        console.log(milestone);
+        var dat = { 'data': data };
+        $stat.find('#issues tbody').html(issuehbs(dat));
 
-        return false;
-
-        entries.forEach(function(row, i){
-
-          console.log(row.close_at);
-          return false;
-
-
-          if (i < 2) return;
-
-          var own = row.gsx$owner.$t.trim();
-          if (own.length){
-            if (!owner[own]) {
-              owner[own] = { owned: 0, done: 0 };
-            };
-            owner[own].owned += 1;
-          };
-
-          if (row.gsx$owner.$t) owned += 1;
-          if (row.gsx$reviewstatus.$t == 'v') {
-            reviewed += 1;
-            if (own.length) owner[own].done += 1;
-          };
-        });
-
-                return false;
-
-
-
-        var source   = $("#reviewer-template").html();
-        var reviewerhbs = Handlebars.compile(source);
-
-        var owners = [];
-        for (user in owner){
-          owner[user].name = user;
-          owner[user].perc = Math.floor( owner[user].done / owner[user].owned * 1000) / 10;
-          owners.push(owner[user]);
-        };
-        ownerDat = { owner: owners};
-
-        ownerDat.owner.sort(function(a, b){
-          return a.done < b.done;
-        });
-
-        $stat.find('#reviewer').append(reviewerhbs(ownerDat));
-
-
+        window.setTimeout(function(){ init(data); }, 60000);
       };
 
-
       window.getDat = function(data){
-        console.log(data.data);
         init(data.data);
       };
 
-      /*
-      $(function(){
-        window.setTimeout(function(){ location.reload(); }, 60000 * 5);
-
-        var entries = window.rvdat;
-
-        var len = entries.length - 2;
-        var owned = 0;
-        var owner = {};
-        var reviewed = 0;
-
-        // ["id", "updated", "category", "title", "content", "link", "gsx$_cn6ca", "gsx$articletitle", "gsx$articledate", "gsx$status", "gsx$owner", "gsx$reviewstatus", "gsx$publishurl"]
-
-        entries.forEach(function(row, i){
-          if (i < 2) return;
-
-          var own = row.gsx$owner.$t.trim();
-          if (own.length){
-            if (!owner[own]) {
-              owner[own] = { owned: 0, done: 0 };
-            };
-            owner[own].owned += 1;
-          };
-
-          if (row.gsx$owner.$t) owned += 1;
-          if (row.gsx$reviewstatus.$t == 'v') {
-            reviewed += 1;
-            if (own.length) owner[own].done += 1;
-          };
-        });
-
-        var $stat = $('#stats');
-        $stat.find('.perc').text(Math.round(reviewed/len * 1000)/10);
-        $stat.find('.reviewed').text(reviewed);
-        $stat.find('.all').text(len);
-
-        var source   = $("#reviewer-template").html();
-        var reviewerhbs = Handlebars.compile(source);
-
-        var owners = [];
-        for (user in owner){
-          owner[user].name = user;
-          owner[user].perc = Math.floor( owner[user].done / owner[user].owned * 1000) / 10;
-          owners.push(owner[user]);
-        };
-        ownerDat = { owner: owners};
-
-        ownerDat.owner.sort(function(a, b){
-          return a.done < b.done;
-        });
-
-        $stat.find('#reviewer').append(reviewerhbs(ownerDat));
-      });
-      */
     </script>
     <script type="text/javascript"  src="https://api.github.com/repos/moztw/www.moztw.org/issues?milestone=4&callback=getDat"></script>
   </body>
