@@ -11,7 +11,7 @@
   </head>
 
   <body>
-    <h1>MozLinks 翻譯米糕松成就榜</h1>
+    <h1>MozTW 網站更新松進度一覽</h1>
     <div id="stats">
       <p>
         <span class="title">完成率 <span class="perc">0</span> %</span>
@@ -31,13 +31,80 @@
       </ul>
     </div>
 
-    <img src="images.jpg" alt="">
+    <img src="images.gif" alt="">
 
     <script>
-      window.getDat = function(data){
-        window.rvdat = data.feed.entry;
+      function init(entries){
+        var milestone = entries[0].milestone;
+
+        var len = milestone.closed_issues + milestone.open_issues;
+        var owned = 0;
+        var owner = {};
+
+        var $stat = $('#stats');
+        $stat.find('.perc').text(Math.round(milestone.closed_issues/len * 1000)/10);
+        $stat.find('.reviewed').text(milestone.closed_issues);
+        $stat.find('.all').text(len);
+
+
+        console.log(milestone);
+
+        return false;
+
+        entries.forEach(function(row, i){
+
+          console.log(row.close_at);
+          return false;
+
+
+          if (i < 2) return;
+
+          var own = row.gsx$owner.$t.trim();
+          if (own.length){
+            if (!owner[own]) {
+              owner[own] = { owned: 0, done: 0 };
+            };
+            owner[own].owned += 1;
+          };
+
+          if (row.gsx$owner.$t) owned += 1;
+          if (row.gsx$reviewstatus.$t == 'v') {
+            reviewed += 1;
+            if (own.length) owner[own].done += 1;
+          };
+        });
+
+                return false;
+
+
+
+        var source   = $("#reviewer-template").html();
+        var reviewerhbs = Handlebars.compile(source);
+
+        var owners = [];
+        for (user in owner){
+          owner[user].name = user;
+          owner[user].perc = Math.floor( owner[user].done / owner[user].owned * 1000) / 10;
+          owners.push(owner[user]);
+        };
+        ownerDat = { owner: owners};
+
+        ownerDat.owner.sort(function(a, b){
+          return a.done < b.done;
+        });
+
+        $stat.find('#reviewer').append(reviewerhbs(ownerDat));
+
+
       };
 
+
+      window.getDat = function(data){
+        console.log(data.data);
+        init(data.data);
+      };
+
+      /*
       $(function(){
         window.setTimeout(function(){ location.reload(); }, 60000 * 5);
 
@@ -90,7 +157,8 @@
 
         $stat.find('#reviewer').append(reviewerhbs(ownerDat));
       });
+      */
     </script>
-    <script type="text/javascript"  src="//spreadsheets.google.com/feeds/list/1xW2g3aE_3Bd9wZ5wiwTy3Kor861W6B9Kj8W7ZR9G1O4/2/public/values?alt=json-in-script&callback=getDat"></script>
+    <script type="text/javascript"  src="https://api.github.com/repos/moztw/www.moztw.org/issues?milestone=4&callback=getDat"></script>
   </body>
 </html>
